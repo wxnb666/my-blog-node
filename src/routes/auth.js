@@ -5,7 +5,6 @@ import { getPool } from "../db.js";
 const router = Router();
 const pool = getPool();
 
-/** POST /api/auth/login — body: { account, password } */
 router.post("/login", async (req, res, next) => {
   try {
     const account = typeof req.body?.account === "string" ? req.body.account.trim() : "";
