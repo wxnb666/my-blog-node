@@ -1,6 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { getPool } from "../db.js";
+import { ownerUsername, signOwnerToken } from "../middleware/requireOwner.js";
 
 const router = Router();
 const pool = getPool();
@@ -28,8 +29,14 @@ router.post("/login", async (req, res, next) => {
       res.status(401).json({ message: "账号或密码不正确" });
       return;
     }
+
+    const ownerName = ownerUsername();
+    const role = user.username === ownerName ? "owner" : "reader";
+    const token = signOwnerToken(user.username);
+
     res.json({
-      user: { id: user.id, username: user.username },
+      user: { id: user.id, username: user.username, role },
+      token,
     });
   } catch (err) {
     next(err);

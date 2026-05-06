@@ -5,6 +5,7 @@ import articlesRouter from "./routes/articles.js";
 import authRouter from "./routes/auth.js";
 import topicsRouter from "./routes/topics.js";
 import statsRouter from "./routes/stats.js";
+import adminRouter from "./routes/admin.js";
 import { pingDb } from "./db.js";
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.get("/api/health", async (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/stats", statsRouter);
 app.use("/api/topics", topicsRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/articles", articlesRouter);
 
 app.use((err, _req, res, _next) => {

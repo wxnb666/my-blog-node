@@ -162,6 +162,24 @@ async function ensureArticleColumns(conn) {
   }
 }
 
+async function ensureCommentsTable(conn) {
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      article_id VARCHAR(64) NOT NULL,
+      parent_id BIGINT UNSIGNED NULL,
+      display_name VARCHAR(64) NOT NULL,
+      body VARCHAR(2000) NOT NULL,
+      is_owner_reply TINYINT(1) NOT NULL DEFAULT 0,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_comments_article_created (article_id, created_at),
+      KEY idx_comments_parent (parent_id),
+      CONSTRAINT fk_comments_article FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+}
+
 async function upsertTopics(conn) {
   for (const t of TOPICS) {
     await conn.query(
@@ -231,6 +249,7 @@ async function main() {
 
   await ensureTopicsTable(conn);
   await ensureArticleColumns(conn);
+  await ensureCommentsTable(conn);
   await upsertTopics(conn);
   await upsertArticles(conn);
   await migrateLegacyArticles(conn);

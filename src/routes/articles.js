@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { getPool } from "../db.js";
+import { requireOwner } from "../middleware/requireOwner.js";
+import articleCommentsRouter from "./articleComments.js";
 
 const router = Router();
 const pool = getPool();
@@ -91,6 +93,8 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.use("/:articleId/comments", articleCommentsRouter);
+
 router.get("/:id", async (req, res, next) => {
   try {
     const [rows] = await pool.query(
@@ -107,7 +111,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", requireOwner, async (req, res, next) => {
   try {
     const { title, desc, tag, content, author } = req.body ?? {};
     if (!title || !tag || !content) {
@@ -139,7 +143,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", requireOwner, async (req, res, next) => {
   try {
     const [result] = await pool.query("DELETE FROM articles WHERE id = ?", [req.params.id]);
     if (result.affectedRows === 0) {
